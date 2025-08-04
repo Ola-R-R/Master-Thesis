@@ -1,0 +1,274 @@
+\documentclass[twoside, b5paper, 11pt, openany]{report}
+\usepackage[utf8]{inputenc} %to manage special characters
+\usepackage[T1]{fontenc} %to manage special characters
+\usepackage[Bjarne]{fncychap} %fancy chapter style (many more available, like Sonny or Lenny etc.)
+\usepackage{fancyhdr} %to customize the headers
+\usepackage[top=2cm, bottom=2cm, left=1.8cm, right=1.8cm]{geometry} % for b5
+\setcounter{tocdepth}{3} %table of contents number depth for subsections (2 = x.x.x)
+\setcounter{secnumdepth}{3} %numbering depth for headers for subsections in the text(4 = x.x.x.x)
+\usepackage[hyphens]{url} %to include urls
+\usepackage{listings} %include this if you want to include code in the thesis
+\usepackage{amsmath,amssymb} %mathematical package
+\usepackage{siunitx} %includes SI-units
+\usepackage[bf]{caption} %makes float captions bold
+\usepackage{subcaption}
+\usepackage{array, booktabs} %to make better tables
+\usepackage{graphicx} %to include graphics
+\usepackage{float} %to include floats
+\usepackage[export]{adjustbox} %to adjust floats
+\usepackage{chngcntr} %will make it possible to change the counter for tables, figures etc. such as below
+\counterwithin{figure}{section} %change counter for figures within sections (also possible to choose for each chapter
+\counterwithin{table}{section} %change counter for tables within sections
+\usepackage{color, xcolor} %edit e.g. text colors
+\usepackage{upgreek}
+
+\usepackage[hidelinks]{hyperref}
+
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=blue!75!black,
+    breaklinks=true,
+    pdftitle={Master Thesis},
+    pdfauthor={Ola},
+    pdfpagemode=FullScreen,
+    }
+
+\urlstyle{same}
+
+
+\usepackage[british]{babel}
+\usepackage{csquotes}
+\usepackage[backend = biber,
+            % style = alphabetic,
+            style = numeric,
+            date = long,     % Long: 24th Mar. 1997 | Short: 24/03/1997
+            sorting = none,
+            maxcitenames = 4,   % max names to include before et. al.
+            ]{biblatex} %customize the look of your citations and bibliography
+            
+
+\bibliography{bibliography.bib} %declare the bibliography resource
+\usepackage{tikz}
+
+\usepackage{comment} %to be able to comment out sections in the .tex files
+\usepackage{afterpage} %to customize page commands such as below
+\newcommand\myemptypage{
+    \null
+    \thispagestyle{empty}
+    \addtocounter{page}{-1}
+    \newpage
+    } %sets new page command to insert an empty page without adding to the page counter or having a page number
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{tabularx}
+
+\usepackage{enumitem}
+
+\emergencystretch=1em
+
+\usepackage[dvipsnames]{xcolor}
+\definecolor{rose_}{RGB}{248, 118, 109}
+\definecolor{dark_teal_}{RGB}{0, 191, 196}
+\definecolor{yellow_}{RGB}{253, 231, 37}
+\definecolor{green_}{RGB}{53, 183, 121}
+\definecolor{dark_blue_1}{RGB}{49, 104, 142}
+\definecolor{dark_blue_2}{RGB}{0, 0, 139}
+\definecolor{dark_purple_}{RGB}{68, 1, 84}
+\definecolor{purple_}{RGB}{160, 32, 240}
+\definecolor{shaded_blue_}{RGB}{165, 165, 241}
+\definecolor{red_}{RGB}{255, 0, 0}
+
+
+\counterwithout{figure}{section}
+
+\counterwithout{equation}{section}
+
+\counterwithout{table}{section}
+
+\numberwithin{equation}{chapter}
+
+\numberwithin{figure}{chapter}
+
+\numberwithin{table}{chapter}
+
+
+\usepackage{algorithm2e}
+\RestyleAlgo{ruled}
+
+\captionsetup{format=plain, margin=0.5cm, font=footnotesize}
+\usepackage[none]{hyphenat}
+\usepackage{times} % Set Times New Roman as font
+
+
+\usepackage{multirow}
+
+
+\begin{document}
+
+
+% The pre-chapters
+\chapter*{Abstract} %pre-chapters should not be numbered, hence the "*"
+\pagenumbering{roman} %introductory pages should be roman
+\setcounter{page}{1}
+\addcontentsline{toc}{chapter}{\protect\numberline{}Abstract} %add the chapter to the table of contents, this is not automatically added when creating unnumbered chapters (*). Add it in a chapter style, and keep all chapters on the same numberline indent regardless of number or not on the chapter
+
+\linespread{1.213}\selectfont
+
+\input{Chapters/00Abstract} %insert the chapter text from the files
+
+\linespread{1.0}\selectfont
+
+\chapter*{Sammendrag} %pre-chapters should not be numbered, hence the "*"
+
+\addcontentsline{toc}{chapter}{\protect\numberline{}Sammendrag} %add the chapter to the table of contents, this is not automatically added when creating unnumbered chapters (*). Add it in a chapter style, and keep all chapters on the same numberline indent regardless of number or not on the chapter
+
+\linespread{1.213}\selectfont
+
+\input{Chapters/00sammendrag} %insert the chapter text from the files
+
+\linespread{1.0}\selectfont
+
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{\protect\numberline{}Preface}
+
+\linespread{1.213}\selectfont
+
+\input{Chapters/01Preface}
+
+\linespread{1.0}\selectfont
+
+\tableofcontents
+\addcontentsline{toc}{chapter}{\protect\numberline{}Contents}
+
+%add to table of contents list of figures and tables, and insert list of figures and tables
+\addcontentsline{toc}{chapter}{\protect\numberline{}\listfigurename}
+\listoffigures
+\addcontentsline{toc}{chapter}{\protect\numberline{}\listtablename}
+\listoftables
+
+
+\chapter*{Abbreviations}
+\addcontentsline{toc}{chapter}{\protect\numberline{}Abbreviations}
+
+
+\input{Chapters/02Abbreviations}
+
+
+\newpage
+\myemptypage
+%add an empty non-counted page by the command below in order to get the first chapter on the left hand side, if needed (check your page number so that the first chapter is on an odd page)
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Customize the layout of the main content of your thesis
+
+\pagestyle{fancy} %set customized page style for header
+\fancyhf{} %clear header and footer fields
+\renewcommand{\headrulewidth}{0pt} %set to no rule
+\fancyhead[LE, RO]{\thepage} %set the page number at left for even, right for odd pages
+\fancyhead[RE, LO]{\leftmark} %set the chapter name at right for even, left for odd pages
+
+\setlength{\headheight}{13.59999pt} %set the header height
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%main content 
+
+\pagenumbering{arabic}
+\chapter{Introduction}
+
+\linespread{1.213}\selectfont
+
+\input{Chapters/03Introduction}
+
+\linespread{1.0}\selectfont
+
+\cleardoublepage
+%the cleardoublepage command ensures that the next text page is on the right-hand side (odd page) and produces a blank page if necessary to achieve that, as all chapters should begin on the right hand side
+
+
+\chapter{Financial Theory}
+
+\linespread{1.213}\selectfont
+
+\input{Chapters/04Theory_Finance}
+
+\linespread{1.0}\selectfont
+
+\cleardoublepage
+
+\chapter{Mathematical Theory}
+
+\linespread{1.213}\selectfont
+
+\input{Chapters/05Theory_Math}
+
+\linespread{1.0}\selectfont
+
+\cleardoublepage
+
+\chapter{Data}\label{ch:data}
+
+\linespread{1.213}\selectfont
+
+\input{Chapters/07Data}
+
+\linespread{1.0}\selectfont
+
+\cleardoublepage
+
+
+\chapter{Methods}\label{ch:method}
+
+\linespread{1.213}\selectfont
+
+\input{Chapters/08Method}
+
+\linespread{1.0}\selectfont
+
+\cleardoublepage
+
+
+\chapter{Results}\label{ch:results}
+
+\linespread{1.213}\selectfont
+
+\input{Chapters/09Results}
+
+\linespread{1.0}\selectfont
+
+\cleardoublepage
+
+
+\chapter{Discussion and Conclusion}\label{ch:disc conc}
+
+\linespread{1.213}\selectfont
+
+\input{Chapters/10Discussion_and_Conclusion}
+
+\linespread{1.0}\selectfont
+
+\cleardoublepage
+
+
+
+\addcontentsline{toc}{chapter}{\protect\numberline{}References}
+\printbibliography[title={References}] %you may change the title in the toc here if you want
+\cleardoublepage
+
+
+\chapter*{\LARGE \textbf{Appendices}}
+\fancyhf{} %clear the header, it should be empty for the appendices
+\renewcommand{\headrulewidth}{0pt} %no rule
+\fancyfoot[C]{\thepage} %set the page numbers in the center of the footer instead 
+
+
+\addcontentsline{toc}{chapter}{\protect\numberline{}Appendices:}
+\appendix
+\input{Chapters/11Appendix}
+
+\end{document}

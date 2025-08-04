@@ -1,0 +1,100 @@
+
+\section{Interest Rate}
+
+\noindent The interest rate is the percentage of interest relative to the principal, which is the amount borrowed \cite{investopedia_interest_rate_new}. In Layman's terms, interest rates are the cost of borrowing money. Interest rates are directly proportional to the amount of risk associated with a loan recipient \cite{cfi_interest_rate}. A lender needs to charge a higher interest rate to compensate for the higher risk. Consequently, the higher the risk, the higher the interest rate a loan recipient is charged.
+
+A loan recipient's risk is not the only factor influencing the interest rate. Another factor is the central bank, which determine something called the "policy rate". In Norway, the central bank is called Norges Bank and it is owned by the government. The policy rate is an interest rate on a banks' overnight deposits in Norges Bank up to a specified quota \cite{norges_bank_policy_rate}. Banks settle payments to each other by transferring deposits between their accounts in Norges Bank \cite{norges_bank_how_policy_rate_influence}. If one bank deposits more than they are allowed, i.e. go above their quota, they receive a lower interest rate on the excess deposits. This interest rate is called the reserve rate. When Norges Bank makes policy rate decisions, the primary objective is ensuring low and stable inflation but also keeping employment as high as possible \cite{norges_bank_policy_rate}.
+
+According to Mr. Jarle Bergo, who was deputy governor of Norges Bank in 2003, interest rates are important because they "shall in the short and medium term contribute to stable inflation and stable developments in production. At the same time, it shall in the long term also contribute to equilibrium in the market for real capital" \cite{norges_bank_role_of_interest_rates}. In other words, interest rates help us maintain economic balance and stability.
+
+As stated, lenders use interest rates to find out how much a loan recipient is allowed to borrow. It is therefore extremely important for these lenders to predict the movement of the interest rate in the future. This helps them make sound decisions today.
+
+\newpage
+
+\section{Time Value of Money}
+
+\noindent The time value of money is a financial concept that states that a dollar is worth more today than it will be worth in the future. This means that money amounts on different time points cannot be compared directly, but needs to be moved to the same time point. This we can do by compounded, which means calculating the future value of something, or discounted, which means calculating the present value of something. The present value and the future value is connected using the following formula: \begin{equation} \label{eq:present to future value}
+    \text{FV} = \text{PV} \times \prod_{i = 1}^n \bigl( 1 + r_i \bigr).
+\end{equation} FV is the future value, PV is the present value, $n$ is the number of periods, and $r_i$ is the risk-free interest rate for period $i$. If the risk-free rate is the same across all periods, i.e. $r_i = r$, $\forall i \in \{ 1, 2, \ldots, n \}$, we can replace $\prod_{i = 1}^n ( 1 + r_i )$ in Equation \eqref{eq:present to future value} with $( 1 + r )^n$. \cite{investopedia_time_value_of_money}
+
+\section{Fixed-Income Securities}
+
+\noindent A fixed-income security provides fixed, periodic interest payments and returns the principal amount at maturity. Governments and companies sell these fixed-income securities to obtain funding for projects and investments. These types of securities provide stable and predictable income in the future, but at a lower return compared to more volatile investments. An example of a fixed-income security is a bond. \cite{investopedia_fixed_income}
+
+\subsection{Bonds}
+
+\noindent A bond is a fixed-income instrument and investment product where individuals lend money to a government or company at a certain interest rate for an amount of time. When the interest rate go up, the bond price will fall, and vice-versa. \cite{investopedia_bonds}
+
+During the lifetime of a bond, the bondholder receives a return as the form of a coupon at agreed upon times, and at the end of the lifetime the bondholder receives the coupon and the face value, which is agreed upon beforehand. These are the cash flows for the bond. There are also zero-coupon bonds, where there are paid no coupons during the lifetime, and are therefore sold at a discount. In a zero-coupon bond the face value is the only cash flow. The fair value, or par value, of a bond is the sum of the discounted cash flows. \cite{investopedia_bond_valuation}
+
+\newpage
+
+\section{Interest Rate Derivatives}
+
+\noindent An interest rate derivative (IRD) is a financial instrument with a value that is linked to the movements of an interest rate or rates \cite{investopedia_interest_rate_derivative}. A financial instrument is an asset that can be traded or exchanged \cite{investopedia_financial_instruments}. There are essentially two classes of IRDs, linear and non-linear, with subclasses "vanilla" and "exotic" \cite{cfi_interest_rate_derivatives}.
+
+
+Linear IRDs are highly correlated with the movement of interest rates, while non-linear IRDs are dependent on more than just the movement of interest rates. Non-linear IRDs will appear volatile and are riskier than linear IRDs. An example of a linear IRDs is an interest rate swaps. "Vanilla" IRDs include conventional features, like start date, end date, etc., while "exotic" IRDs have specializes extensions. \cite{cfi_interest_rate_derivatives}
+
+
+\subsection{Interest Rate Swaps}
+
+\noindent Another type of an IRD is an interest rate swap. In a swap, two parties agree to exchange some percentage of a notional amount to each other. This notional amount could be the total loan both parties have taken. There are three different types of interest rate swaps: fixed-to-floating, floating-to-fixed, and float-to-float \cite{investopedia_swap}.
+
+If a company agrees to a fixed-to-floating swap, they will pay another party a fixed amount each payment date and they will receive a changing payment each payment date. In a float-to-float interest rate swap contract, each party pays a varying amount based on different interest rate indices. \cite{investopedia_swap}
+
+Fixed-to-floating and floating-to-fixed interest rate swap are the same type of contract, but the parties are switched. At set intervals, one party will exchange a fixed amount to the other, and the other party will exchange a changing amount. This changing amount is determined by an agreed upon interest rate index. This contract assures that one party always pays a fixed amount each payment date, while the other will pay a floating or varying amount each payment date. When pricing such interest rate swaps, one can divide it into two different coupon bonds. One bond is for the fixed rate party, and the other bond is for the floating rate party. The interest rate swap value is then the difference between these bonds. The fixed rate, or swap rate, is set such that at inception the swap value is zero, or the fixed rate bond value is the same as the floating bond value. They are equivalent through the following equation: \begin{equation} \label{eq:theory swap rate}
+    r_\text{FIX} = \frac{1 - \text{PV}_{0,t_n} \bigl( 1 \bigr)}{\sum_{i=1}^n \text{PV}_{0,t_i} \bigl( 1 \bigr)},
+\end{equation} where $n$ is the number of coupons, $\text{PV}_{0,t_n} \bigl( 1 \bigr)$ is the present value of $1$ discounted from the end date $t_n$, and $\text{PV}_{0,t_i} \bigl( 1 \bigr)$ is the present value of $1$ discounted from the date $t_i$. \cite{analyst_prep_swap_value}
+
+\newpage
+
+
+
+\section{Forward Rates}
+
+\noindent A forward rate is an interest rate applicable to a financial transaction that will take place in the future \cite{investopedia_forward_rate}. Suppose I want to agree to a contract today, where I buy a bond at a future date, say time $t$, and I want that bond to be paid back at a time after $t$, say time $T$. The interest rate on that bond will then be a forward rate.
+
+To extract the forward rate for some future interest rate $r_{1,2}$ starting at time $t_1$ and ending at time $t_2$, where $t_1$ and $t_2$ are expressed in years, we will use the formula \begin{equation} \label{forward_formula}
+    r_{1,2} = \Biggl( \frac{\bigl( 1 + r_2 \bigr)^{t_2}}{\bigl( 1 + r_1 \bigr)^{t_1}} \Biggr)^{\frac{1}{t_2 - t_1}} - 1,
+\end{equation} where $r_1$ and $r_2$ are interest rates starting to day with maturities $t_1$ and $t_2$ respectively \cite{investopedia_forward_rate}.
+
+\section{The Yield Curve} \label{sec:the yield curve}
+
+\noindent A yield curve is a line that plots the yields or interest rates of bonds that have equal credit quality but different maturity dates \cite{investopedia_yield_curve}. There are three main shapes of this yield curve; increasing, decreasing, and humped. An increasing yield curve, the most common shape, indicate that it is more profitable to tie money up for a longer time since the short-term interest rates are lower than the long-term interest rates. A decreasing yield curve indicate that the short rate is high but is expected to fall, and a humped yield curve indicate again that the short-rate is expected to fall \cite[p.~269]{math_financial_derivatives}. The yield curve can be used to predict how we expect the interest rate to change in the future, and to derive forward rates. This in turn can be used to find the correct present value terms for future cash flows which can help with evaluating IRDs.
+
+\section{Risk Neutrality}
+
+\noindent Risk neutrality is an important concept for pricing derivatives. In the risk-free or "risk neutral" world, the risk of an investment is irrelevant, because investors are only interested in the expected return. When pricing a derivative, the expected value of the price is therefore the fair value. \cite[p.~83--84]{math_financial_derivatives}
+
+It is the risk neutrality concept that allows the fair value of an IRD to be the expected \newpage \noindent value of the discounted cash flows. In mathematical terms this becomes \begin{equation*}
+    \text{Fair Value} = \text{E} \Biggl[ \sum_{t = 1}^T \bigl( \text{CF}_t \times \text{DF}_t \bigr) \Biggr],
+\end{equation*} where $\text{E}$ is the expected value under the risk neutral measure, $\text{CF}_t$ is the cash flow at time $t$, $\text{DF}_t$ is the discounting factor for time $t$, and $T$ is the number of cash flows.
+
+
+\section{Financial Risk}
+
+
+\noindent Financial risk is the possibility, or risk, of losing money on an investment or a business venture \cite{investopedia_financial_risk}. Some forms of financial risks are credit risk, liquidity risk, and operational risk. I will give a deeper introduction into credit risk.
+
+\subsection{Credit Risk}
+
+\noindent Credit risk, also knows as default risk, is the danger associated with borrowing money \cite{investopedia_financial_risk}. In other words, it is the probability of losing money because a loan recipient can't pay back what they owe. For a lender to take on such a risk, they will charge the loan recipient an interest rate. Lenders will charge a higher interest rate on loans for loan recipients with high credit risk because there is a higher probability that they will default, i.e. fail to pay back the loan.
+
+There are different metrics for quantifying credit risk for a loan recipient, but the three most widely used metrics are; probability of default, loss given default, and exposure at default. Probability of default is the probability or likelihood that a loan recipient is not financially able to pay their scheduled dept payments. Loss given default is the amount of money a lender loses when a loan recipient defaults. Exposure at default is the total amount of exposure a lender is exposed to when a loan recipient defaults at any given time. \cite{investopedia_quantify_credit_risk}
+
+
+\subsubsection{Counterparty Risk}
+
+\noindent In an interest rate swap contract, there are two parties that each pay an amount on agreed upon dates. Counterparty risk is the probability that one of these parties fail to pay what they owe the other party. Counterparty risk is a type of credit risk. Expected exposure (EE) and potential future exposure (PFE) are two metrics for quantifying this counterparty risk \cite{investopedia_understanding_counterparty_risk}. Exposure is the amount an investor stands to lose in an investment should the investment fail \cite{investopedia_exposure}. Credit exposure is the immediate loss if the counterparty defaults \cite{investopedia_understanding_counterparty_risk}.
+
+\newpage
+
+Expected exposure is the expected credit exposure on a future target date conditional on positive market values \cite{investopedia_understanding_counterparty_risk}. The reason why negative values are discarded is because if one party defaults, the other party loses nothing. If a party have a $12$-month EE of $5$ million, the partys credit exposure in $12$ months will be $5$ million.
+
+
+% \newpage
+
+
+Potential future exposure, is the credit exposure on a future date modeled with a specified confidence interval \cite{investopedia_understanding_counterparty_risk}. If a party set the confidence at $95\%$, and have a $12$-month PFE of $10$ million, the party is $95\%$ confident that the credit exposure in $12$ months will be $10$ million or less.
+

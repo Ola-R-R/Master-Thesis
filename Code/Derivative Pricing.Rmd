@@ -1,0 +1,414 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Setup
+
+```{r setup, include=F}
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE,
+  echo = TRUE,
+  tidy = TRUE,
+  fig.align = "center",
+  tidy.opts = list(width.cutoff = 60))
+
+# Loading Libraries
+library(readxl)
+library(tidyverse)
+require(reshape2)
+library(tseries)
+library(astsa)
+library(forecast)
+library(viridis)
+library(RQuantLib)
+library(stringr)
+library(xts)
+library(MASS)
+library(scales)
+library(mvtnorm)
+library(mnormt)
+library(rugarch)
+library(fGarch)
+library(broom)
+library(FactoMineR)
+library(ggplot2)
+library(gtable)
+library(grid)
+library(gridExtra)
+library(YieldCurve)
+library(bizdays)
+library(Metrics)
+library(future.apply)
+library(foreach)
+library(doParallel)
+library(matrixStats)
+library(parallel)
+library(furrr)
+library(writexl)
+library(arrow)
+library(data.table)
+library(gginnards)
+library(tibble)
+library(magrittr)
+library(splines)
+library(VGAM)
+library(lubridate)
+library(corrplot)
+library(ggcorrplot)
+
+# Setting storage limit
+options(future.globals.maxSize = 10000*1024^2)
+
+# Setting plot themes
+custom_viridis <- function(n.breaks) scale_color_viridis_c("Tenor (Years)", n.breaks = n.breaks, guide = guide_colorbar(barwidth = 1, barheight = 15))
+
+custom_theme <- function(size = 1) {
+  theme(
+    plot.title = element_text(size = 12 * size, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 10 * size),
+    axis.text = element_text(size = 10 * size),
+    legend.title = element_text(size = 10 * size, face = "bold"),
+    legend.text = element_text(size = 10 * size),
+    legend.background = element_blank(),
+    legend.box.background = element_rect(color = "black", fill = NA),
+    plot.margin = margin(10, 10, 10, 10),
+    text = element_text(size = 12 * size),
+    plot.title.position = 'plot',
+    legend.position = 'right',
+    panel.border = element_rect(color = "black", fill = NA),
+  )
+}
+
+# Setting parallel processing
+plan(multisession, workers = detectCores() - 3)
+```
+
+# Importing Simulated Data
+
+```{r}
+# zero_coupon_yields_phase_3_HJM_2F_procedure_1_poly_model_simulated_10Y_10000_realizations_seed.1 <- as.matrix(read_parquet("Simulated Data/zero_coupon_yields_phase_3_HJM_2F_procedure_1_poly_model_simulated_10Y_10000_realizations_seed.1"))
+# zero_coupon_yields_phase_3_HJM_2F_procedure_1_spline_model_simulated_10Y_10000_realizations_seed.1 <- as.matrix(read_parquet("Simulated Data/zero_coupon_yields_phase_3_HJM_2F_procedure_1_spline_model_simulated_10Y_10000_realizations_seed.1"))
+# zero_coupon_yields_phase_3_HJM_2F_procedure_2_poly_model_simulated_10Y_10000_realizations_seed.1 <- as.matrix(read_parquet("Simulated Data/zero_coupon_yields_phase_3_HJM_2F_procedure_2_poly_model_simulated_10Y_10000_realizations_seed.1"))
+# zero_coupon_yields_phase_3_HJM_2F_procedure_2_spline_model_simulated_10Y_10000_realizations_seed.1 <- as.matrix(read_parquet("Simulated Data/zero_coupon_yields_phase_3_HJM_2F_procedure_2_spline_model_simulated_10Y_10000_realizations_seed.1"))
+```
+
+# Plot function
+
+```{r}
+plot_prices_fun <- function(price, plot_title = "Price", name = NULL, plot_size = c(10, 5)) {
+  prices_df <- as.data.frame(cbind(days = price$days, price$prices))
+  # discounted_prices_df <- as.data.frame(cbind(days = price$days, price$all_discounted_prices))
+  prices_df$days <- as.integer(prices_df$days)
+  # discounted_prices_df$days <- as.integer(discounted_prices_df$days)
+  prices_df_compact <- reshape2::melt(prices_df, id.vars = "days", variable.name = "realization", value.name = "price")
+  # discounted_prices_df_compact <- reshape2::melt(discounted_prices_df, id.vars = "days", variable.name = "realization", value.name = "discounted_price")
+  prices_quantile_df <- prices_df_compact %>% group_by(days) %>% summarise(mean = mean(price), lower_quantile = quantile(price, probs = 0.05), upper_quantile = quantile(price, probs = 0.95))
+  # discounted_prices_quantile_df <- discounted_prices_df_compact %>% group_by(days) %>% summarise(mean = mean(discounted_price), lower_quantile = quantile(discounted_price, probs = 0.05), upper_quantile = quantile(discounted_price, probs = 0.95))
+  
+  prices_plot <- ggplot(prices_df_compact) +
+    # geom_line(aes(x = days, y = price, group = realization, color = realization), size = .5) +
+    geom_ribbon(aes(x = days, ymin = lower_quantile, ymax = upper_quantile), prices_quantile_df, fill = "blue", alpha = 0.5) +
+    geom_line(aes(x = days, y = mean), prices_quantile_df, color = "black", linewidth = 1.25) +
+    # geom_line(aes(x = days, y = lower_quantile), prices_quantile_df, color = "black", linewidth = 1) +
+    # geom_line(aes(x = days, y = upper_quantile), prices_quantile_df, color = "black", linewidth = 1) +
+    labs(x = "Days", y = "Price") +
+    # labs(title = plot_title, x = "Days", y = "Price") +
+    # scale_color_viridis_d() +
+    custom_theme(2) +
+    theme(legend.position = "none")
+  
+  print(prices_plot)
+  # print(discounted_prices_plot)
+  
+  if (!is.null(name)) {
+    ggsave(paste0(name, "_prices_plot.png"), prices_plot, "png", "Figs/Prices", width = plot_size[1], height = plot_size[2])
+    # ggsave(paste0(name, "_discounted_prices_plot.png"), discounted_prices_plot, "png", "Figs/Discounted Prices", width = plot_size[1], height = plot_size[2])
+  }
+}
+
+plot_histogram_prices_fun <- function(price, plot_title = "Prices", time = 0, name = NULL, plot_size = c(10, 5)) {
+  prices_df <- as.data.frame(cbind(days = price$days, price$prices))
+  prices_df$days <- as.integer(prices_df$days)
+  prices_df <- prices_df[time + 1,]
+  
+  prices_df_compact <- reshape2::melt(prices_df, id.vars = "days", variable.name = "realization", value.name = "price")
+  
+  all_price <- price$price
+  mean_price <- mean(all_price)
+  median_price <- median(all_price)
+  sd_price <- sd(all_price)
+  min_price <- min(all_price)
+  max_price <- max(all_price)
+  quantiles_2.5_price <- quantile(all_price, probs = 0.025)
+  quantiles_5_price <- quantile(all_price, probs = 0.05)
+  quantiles_97.5_price <- quantile(all_price, probs = 0.975)
+  
+  prices_histogram <- ggplot(prices_df_compact) +
+    geom_histogram(aes(price), bins = 100, color = "black") +
+    labs(x = "Price", y = "Frequency") +
+    # labs(title = plot_title, x = "Price", y = "Frequency") +
+    custom_theme(2) +
+    geom_vline(aes(xintercept = mean_price), color = "darkblue", linetype = "dashed", size = 1.25) +
+    annotate("label", x = mean_price, y = 0, label = paste("Mean:", round(mean_price, 0)), size = 5, color = "darkblue") +
+    # geom_vline(aes(xintercept = median_price), color = "darkblue", linetype = "dashed", size = 1) +
+    # annotate("label", x = median_price, y = 100, label = paste("Median:", round(median_price, 0)), size = 4, color = "darkblue") +
+    geom_vline(aes(xintercept = quantiles_2.5_price), color = "darkblue", linetype = "dashed", size = 1.25) +
+    annotate("label", x = quantiles_2.5_price, y = 0, label = paste("2.5% quantile:", round(quantiles_2.5_price, 0)), size = 5, color = "darkblue") +
+    geom_vline(aes(xintercept = quantiles_97.5_price), color = "darkblue", linetype = "dashed", size = 1.25) +
+    annotate("label", x = quantiles_97.5_price, y = 0, label = paste("97.5% quantile:", round(quantiles_97.5_price, 0)), size = 5, color = "darkblue")
+    
+  
+  print(prices_histogram)
+  
+  if (!is.null(name)) {
+    ggsave(paste0(name, "_histogram.png"), prices_histogram, "png", "Figs/Prices", width = plot_size[1], height = plot_size[2])
+  }
+}
+
+plot_exposure_fun <- function(price, plot_title = "Exposure", name = NULL, plot_size = c(10, 5)) {
+  prices_df <- as.data.frame(cbind(days = price$days, price$prices))
+  # discounted_prices_df <- as.data.frame(cbind(days = price$days, price$all_discounted_prices))
+  prices_df$days <- as.integer(prices_df$days)
+  # discounted_prices_df$days <- as.integer(discounted_prices_df$days)
+  prices_df_compact <- reshape2::melt(prices_df, id.vars = "days", variable.name = "realization", value.name = "price")
+  # discounted_prices_df_compact <- reshape2::melt(discounted_prices_df, id.vars = "days", variable.name = "realization", value.name = "discounted_price")
+  prices_quantile_df <- prices_df_compact %>% group_by(days) %>% summarise(expected_exposure = mean(price[price >= 0]), potential_future_exposure = quantile(price[price >= 0], probs = 0.95), lower_quantile = quantile(price, probs = 0.05), upper_quantile = quantile(price, probs = 0.95))
+  
+  exposure_plot <- ggplot(prices_df_compact) +
+    # geom_line(aes(x = days, y = price, group = realization, color = realization), size = .5) +
+    geom_ribbon(aes(x = days, ymin = lower_quantile, ymax = upper_quantile), prices_quantile_df, fill = "blue", alpha = 0.5) +
+    geom_line(aes(x = days, y = expected_exposure, color = "Expected Exposure"), prices_quantile_df, linewidth = 1.25) +
+    geom_line(aes(x = days, y = potential_future_exposure, color = "Potential future exposure"), prices_quantile_df, linewidth = 1.25) +
+    # geom_line(aes(x = days, y = lower_quantile), prices_quantile_df, color = "black", linewidth = 1) +
+    # geom_line(aes(x = days, y = upper_quantile), prices_quantile_df, color = "black", linewidth = 1) +
+    # labs(title = plot_title, x = "Days", y = "Price") +
+    labs(x = "Days", y = "Price") +
+    custom_theme(2) +
+    scale_color_manual(values = c("Expected Exposure" = "darkblue", "Potential future exposure" = "purple")) +
+    theme(legend.position = "none")
+  
+  print(exposure_plot)
+  
+  if (!is.null(name)) {
+    ggsave(paste0(name, "_exposure_plot.png"), exposure_plot, "png", "Figs/Exposure", width = plot_size[1], height = plot_size[2])
+  }
+}
+```
+
+# Swap Value function
+
+```{r}
+calculate_one_swap_price_w_theoretical_swap_rate_fun <- function(rates, discount = "daily", swap_start = 0, swap_maturity = 1, swap_frequency = 1/2, swap_notional = 1e6, swap_rate = NULL) {
+  
+  rates <- rates[,-1]
+  rates[,"time"] <- seq_len(nrow(rates)) - 1
+  rate_names <- colnames(rates)[-1]
+  year_length <- 252
+  tau <- 1/year_length
+  
+  swap_start_index <- swap_start * year_length + 1
+  swap_maturity_index <- swap_maturity * year_length + 1
+  n_swaps <- (swap_maturity - swap_start)/swap_frequency
+  rates <- rates[1:swap_maturity_index,]
+  days <- rates[,"time"]
+  swap_days <- days[(swap_start_index + 1):swap_maturity_index]
+  discount_days <- days[1:(swap_maturity_index - 1)]
+  
+  payment_indicator <- rep(c(rep(0, year_length * swap_frequency - 1), 1), n_swaps)
+  
+  if (is.null(swap_rate)) {
+    discount_rate_names <- as.character(seq(swap_start, swap_maturity, by = swap_frequency))[-1]
+    # todays_discount_factors <- 1/(1 + as.numeric(rates[1, discount_rate_names]) * as.numeric(discount_rate_names))
+    # swap_rate <- ((1 - tail(todays_discount_factors, 1))/sum(todays_discount_factors))/swap_frequency
+    
+    forward_rates <- numeric(length(discount_rate_names))
+    forward_discount_factors <- numeric(length(discount_rate_names))
+    forward_rates[1] <- rates[1, discount_rate_names[1]]
+    forward_discount_factors[1] <- 1/(1 + forward_rates[1] * as.numeric(discount_rate_names[1]))
+    
+    for (i in 1:(length(discount_rate_names) - 1)) {
+      n <- as.numeric(discount_rate_names[i + 1])
+      m <- as.numeric(discount_rate_names[i])
+      R2 <- rates[1, discount_rate_names[i + 1]]
+      R1 <- rates[1, discount_rate_names[i]]
+      
+      forward_rates[i + 1] <- (((1 + R2)^n) / ((1 + R1)^m))^(1 / (n - m)) - 1
+      forward_discount_factors[i + 1] <- 1/(1 + forward_rates[i + 1] * swap_frequency)
+    }
+    todays_discount_factors <- cumprod(forward_discount_factors)
+    swap_rate <- ((1 - tail(todays_discount_factors, 1))/sum(todays_discount_factors))/swap_frequency
+  }
+  
+  floating_payments <- c(rep(0, length(discount_days) - length(swap_days)), payment_indicator * rates[rates[,"time"] %in% swap_days, as.character(swap_frequency)] * swap_notional * swap_frequency)
+  fixed_payments <- c(rep(0, length(discount_days) - length(swap_days)), payment_indicator * swap_rate * swap_notional * swap_frequency)
+  
+  discount_rate <- discount
+  if (discount == "daily") discount_rate <- "0"
+  
+  dirty_floating_price <- 0
+  dirty_fixed_price <- 0
+  dirty_floating_prices <- numeric(length(days))
+  dirty_fixed_prices <- numeric(length(days))
+  
+  all_discount_factors <- exp(-tau * rates[rates[,"time"] %in% discount_days, discount_rate])
+  rev_all_discount_factors <- c(rev(all_discount_factors), 1)
+  
+  rev_floating_payments <- c(rev(floating_payments), 0)
+  rev_fixed_payments <- c(rev(fixed_payments), 0)
+  
+  for (i in seq_along(rev_floating_payments)) {
+    
+    dirty_floating_price <- dirty_floating_price + rev_floating_payments[i]
+    dirty_fixed_price <- dirty_fixed_price + rev_fixed_payments[i]
+    
+    dirty_floating_prices[i] <- dirty_floating_price
+    dirty_fixed_prices[i] <- dirty_fixed_price
+    
+    dirty_floating_price <- dirty_floating_price * rev_all_discount_factors[i]
+    dirty_fixed_price <- dirty_fixed_price * rev_all_discount_factors[i]
+    
+  }
+  dirty_floating_prices <- rev(dirty_floating_prices)
+  dirty_fixed_prices <- rev(dirty_fixed_prices)
+  
+  dirty_prices <- dirty_floating_prices - dirty_fixed_prices
+  dirty_price <- dirty_floating_price - dirty_fixed_price
+  
+  return(list(prices = dirty_prices, price = dirty_price, days = days, swap_rate = swap_rate))
+}
+
+calculate_all_swaps_prices_w_theoretical_swap_rate_fun <- function(rates, discount = "daily", swap_start = 0, swap_maturity = 1, swap_frequency = 1/2, swap_notional = 1e6, swap_rate = NULL) {
+  m <- n_distinct(rates[,"realization"])
+  year_length <- 252
+  days_all <- unique(rates[,"time"])
+  
+  swap_maturity_index <- swap_maturity * year_length + 1
+  days <- days_all[1:swap_maturity_index]
+  
+  rates <- rates[rates[,"time"] %in% days,]
+  days <- seq_len(length(days)) - 1
+  
+  rates[,"time"] <- rep(days, m)
+  
+  all_prices <- matrix(NA, nrow = length(days), ncol = m)
+  all_price <- numeric(m)
+  
+  
+  if (is.null(swap_rate)) {
+    discount_rate_names <- as.character(seq(swap_start, swap_maturity, by = swap_frequency))[-1]
+    todays_discount_factors <- 1/(1 + as.numeric(rates[1, discount_rate_names]) * as.numeric(discount_rate_names))
+    swap_rate <- ((1 - tail(todays_discount_factors, 1))/sum(todays_discount_factors))/swap_frequency
+  }
+  
+  discount_rate <- discount
+  if (discount == "daily") discount_rate <- "0"
+  
+  rates <- rates[,c("realization", "time", discount_rate, as.character(swap_frequency))]
+  
+  result <- future_lapply(1:m, function(i) {
+    calculate_one_swap_price_w_theoretical_swap_rate_fun(rates[rates[,"realization"] == i,], discount = discount, swap_start = swap_start, swap_maturity = swap_maturity, swap_frequency = swap_frequency, swap_notional = swap_notional, swap_rate = swap_rate)
+  })
+  
+  for (i in seq_len(m)) {
+    all_prices[,i] <- result[[i]]$prices
+    all_price[i] <- result[[i]]$price
+  }
+  
+  return(list(prices = all_prices, price = all_price, days = days))
+}
+```
+
+# Calculating swap prices
+
+```{r}
+swap_start <- 0
+swap_maturity <- 10
+swap_frequency <- 1/2
+swap_notional <- 1e6
+
+# swap_price_procedure_1_poly_model <- calculate_all_swaps_prices_w_theoretical_swap_rate_fun(zero_coupon_yields_phase_3_HJM_2F_procedure_1_poly_model_simulated_10Y_10000_realizations_seed.1,
+#                                                                                             swap_start = swap_start,
+#                                                                                             swap_maturity = swap_maturity,
+#                                                                                             swap_frequency = swap_frequency,
+#                                                                                             swap_notional = swap_notional)
+# 
+# swap_price_procedure_1_spline_model <- calculate_all_swaps_prices_w_theoretical_swap_rate_fun(zero_coupon_yields_phase_3_HJM_2F_procedure_1_spline_model_simulated_10Y_10000_realizations_seed.1,
+#                                                                                               swap_start = swap_start,
+#                                                                                               swap_maturity = swap_maturity,
+#                                                                                               swap_frequency = swap_frequency,
+#                                                                                               swap_notional = swap_notional)
+# 
+# swap_price_procedure_2_poly_model <- calculate_all_swaps_prices_w_theoretical_swap_rate_fun(zero_coupon_yields_phase_3_HJM_2F_procedure_2_poly_model_simulated_10Y_10000_realizations_seed.1,
+#                                                                                             swap_start = swap_start,
+#                                                                                             swap_maturity = swap_maturity,
+#                                                                                             swap_frequency = swap_frequency,
+#                                                                                             swap_notional = swap_notional)
+# 
+# swap_price_procedure_2_spline_model <- calculate_all_swaps_prices_w_theoretical_swap_rate_fun(zero_coupon_yields_phase_3_HJM_2F_procedure_2_spline_model_simulated_10Y_10000_realizations_seed.1,
+#                                                                                               swap_start = swap_start,
+#                                                                                               swap_maturity = swap_maturity,
+#                                                                                               swap_frequency = swap_frequency,
+#                                                                                               swap_notional = swap_notional)
+```
+
+```{r}
+cat("Mean swap prices:\n",
+    "Procedure 1, poly model:   ", mean(swap_price_procedure_1_poly_model$price), "\n",
+    "Procedure 1, spline model: ", mean(swap_price_procedure_1_spline_model$price), "\n",
+    "Procedure 2, poly model:   ", mean(swap_price_procedure_2_poly_model$price), "\n",
+    "Procedure 2, spline model: ", mean(swap_price_procedure_2_spline_model$price), "\n")
+cat("Median swap prices:\n",
+    "Procedure 1, poly model:   ", median(swap_price_procedure_1_poly_model$price), "\n",
+    "Procedure 1, spline model: ", median(swap_price_procedure_1_spline_model$price), "\n",
+    "Procedure 2, poly model:   ", median(swap_price_procedure_2_poly_model$price), "\n",
+    "Procedure 2, spline model: ", median(swap_price_procedure_2_spline_model$price), "\n")
+
+cat("Standard deviation of swap prices:\n",
+    "Procedure 1, poly model:   ", sd(swap_price_procedure_1_poly_model$price), "\n",
+    "Procedure 1, spline model: ", sd(swap_price_procedure_1_spline_model$price), "\n",
+    "Procedure 2, poly model:   ", sd(swap_price_procedure_2_poly_model$price), "\n",
+    "Procedure 2, spline model: ", sd(swap_price_procedure_2_spline_model$price), "\n")
+
+cat("Maximum swap prices:\n",
+    "Procedure 1, poly model:   ", max(swap_price_procedure_1_poly_model$price), "\n",
+    "Procedure 1, spline model: ", max(swap_price_procedure_1_spline_model$price), "\n",
+    "Procedure 2, poly model:   ", max(swap_price_procedure_2_poly_model$price), "\n",
+    "Procedure 2, spline model: ", max(swap_price_procedure_2_spline_model$price), "\n")
+
+cat("Minimum swap prices:\n",
+    "Procedure 1, poly model:   ", min(swap_price_procedure_1_poly_model$price), "\n",
+    "Procedure 1, spline model: ", min(swap_price_procedure_1_spline_model$price), "\n",
+    "Procedure 2, poly model:   ", min(swap_price_procedure_2_poly_model$price), "\n",
+    "Procedure 2, spline model: ", min(swap_price_procedure_2_spline_model$price), "\n")
+
+cat("Confidence intervals for swap prices:\n",
+    "Procedure 1, poly model:   ", quantile(swap_price_procedure_1_poly_model$price, probs = c(0.025, 0.975)), "\n",
+    "Procedure 1, spline model: ", quantile(swap_price_procedure_1_spline_model$price, probs = c(0.025, 0.975)), "\n",
+    "Procedure 2, poly model:   ", quantile(swap_price_procedure_2_poly_model$price, probs = c(0.025, 0.975)), "\n",
+    "Procedure 2, spline model: ", quantile(swap_price_procedure_2_spline_model$price, probs = c(0.025, 0.975)), "\n")
+```
+
+
+```{r}
+plot_prices_fun(swap_price_procedure_1_poly_model, "Prices for Procedure 1, poly model", "procedure_1_poly_model", plot_size = c(10, 7))
+plot_prices_fun(swap_price_procedure_1_spline_model, "Prices for Procedure 1, spline model", "procedure_1_spline_model", plot_size = c(10, 7))
+plot_prices_fun(swap_price_procedure_2_poly_model, "Prices for Procedure 2, poly model", "procedure_2_poly_model", plot_size = c(10, 7))
+plot_prices_fun(swap_price_procedure_2_spline_model, "Prices for Procedure 2, spline model", "procedure_2_spline_model", plot_size = c(10, 7))
+```
+
+```{r}
+plot_histogram_prices_fun(swap_price_procedure_1_poly_model, "Prices for Procedure 1, poly model", time = 0, name = "procedure_1_poly_model", plot_size = c(10, 7))
+plot_histogram_prices_fun(swap_price_procedure_1_spline_model, "Prices for Procedure 1, spline model", time = 0, name = "procedure_1_spline_model", plot_size = c(10, 7))
+plot_histogram_prices_fun(swap_price_procedure_2_poly_model, "Prices for Procedure 2, poly model", time = 0, name = "procedure_2_poly_model", plot_size = c(10, 7))
+plot_histogram_prices_fun(swap_price_procedure_2_spline_model, "Prices for Procedure 2, spline model", time = 0, name = "procedure_2_spline_model", plot_size = c(10, 7))
+```
+
+```{r}
+plot_exposure_fun(swap_price_procedure_1_poly_model, "Exposure for Procedure 1, poly model", "procedure_1_poly_model", plot_size = c(10, 7))
+plot_exposure_fun(swap_price_procedure_1_spline_model, "Exposure for Procedure 1, spline model", "procedure_1_spline_model", plot_size = c(10, 7))
+plot_exposure_fun(swap_price_procedure_2_poly_model, "Exposure for Procedure 2, poly model", "procedure_2_poly_model", plot_size = c(10, 7))
+plot_exposure_fun(swap_price_procedure_2_spline_model, "Exposure for Procedure 2, spline model", "procedure_2_spline_model", plot_size = c(10, 7))
+```

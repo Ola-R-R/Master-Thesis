@@ -1,0 +1,129 @@
+
+\section{Stochastic Differential Equations}
+
+\noindent A differential equation describes a relationship between an unknown function and its derivative. If this unknown functions depends on several variables, it is called a partial differential equation. If it depends on only a single variable, it is called an ordinary differential equation. \cite[p.~1]{diff_eq_book}
+
+A stochastic differential equation is a differential equation where we allow for randomness in the coefficients \cite[p.~2]{stoch_diff_eq_book}. An SDE, in differential form, is defined by the following equation: \begin{equation}
+    dX_t = b(t,X_t) dt + \sigma(t, X_t) dB_t
+\end{equation} where $X_t$ is the unknown function, $b(t,x) \in \mathbb{R}$, $\sigma (t,x) \in \mathbb{R}$, and $B_t$ is a $1$-dimensional Brownian motion \cite[p.~65]{stoch_diff_eq_book}. A Brownian motion is sometimes called a Wiener process \cite[p.~392]{intro_stoch_mod}. In \cite[p.~394]{intro_stoch_mod}, A Brownian motion with diffusion coefficient $\sigma^2$ is defined as a stochastic process $\bigl\{ B \bigl( t ; t \geq 0 \bigr) \bigr\}$ with the properties: \begin{enumerate}[label=(\alph*)]
+\item Every increment $B \bigl( s + t \bigr) - B \bigl( s \bigr) = d B \bigl( s \bigr)$ is normally distributed with mean zero and variance $\sigma^2 t$; $\sigma^2 > 0$ is a fixed parameter.
+\item For every pair of disjoint time intervals $\bigl( t_1, t_2 \bigr]$, $\bigl( t_3, t_4 \bigr]$, with $0 \leq t_1 < t_2 \leq t_3 < t_4$, the increments $B \bigl( t_4 \bigr) - B \bigl( t_3 \bigr)$ and $B \bigl( t_2 \bigr) - B \bigl( t_1 \bigr)$ are independent random variables, and similarly for $n$ disjoint time intervals, where $n$ is an arbitrary positive integer.
+\item $B \bigl( 0 \bigr) = 0$ and $B \bigl( t \bigr)$ is continuous as a function of $t$.
+\end{enumerate} A standard Brownian motion is a Brownian motion whose variance parameter, $\sigma^2$, is equal to $1$ \cite[p.~394]{intro_stoch_mod}.
+
+\newpage
+
+\section{Eigenvalues and Eigenvectors}
+
+\noindent If $\mathbf{A}$ is an $n \times n$ matrix, then a nonzero vector $\boldsymbol{x} \in \mathbb{R}^n$ is called an eigenvector of $\mathbf{A}$ if $\mathbf{A} \boldsymbol{x}$ is a scalar multiple of $\boldsymbol{x}$; that is, \begin{equation*}
+    \mathbf{A} \boldsymbol{x} = \lambda \boldsymbol{x}.
+\end{equation*} for some scalar $\lambda$. The scalar $\lambda$ is called an eigenvalue of $\mathbf{A}$, and $\boldsymbol{x}$ is said to be an eigenvector corresponding to $\lambda$. \cite[p.~291]{elementary_lin_alg}
+
+\section{Principal Component Analysis}
+
+\noindent Principal component analysis, is simply put a technique for pulling high dimensional data into lower dimensions. When we have a large dataset with many correlated variables, we can use principal components to summarize the dataset with a smaller number of variables that explain most of the variability in the data \cite[p.~498]{intro_stat_learning}. PCA is the process of finding these principal components, and to use these components to understand the data \cite[p.~499]{intro_stat_learning}. When deciding how many principal component we want to use, we can look at a scree plot to see how many are needed \cite[p.~509]{intro_stat_learning}.
+
+To perform a PCA, we first have to calculate the covariance matrix of our data. From this matrix, we can calculate eigenvalues and their associated eigenvectors. The eigenvector associated with the largest eigenvalue is the first principal component \cite[p.~618]{WFI}. This vector represents the most common movement in the data. The second principal component is the eigenvector associated with the second largest eigenvalue, and so on. The standard deviations of the principal components are then the square root of the eigenvalues, and the corresponding principal components are equal to the corresponding eigenvectors.
+
+\section{Interest Rate Models}
+
+\noindent It is of great interest for financial sectors and amateur traders alike to know what the interest rate will be at a future date, but this is impossible. They can however try to predict where it will likely be at said future date. Consequently, various models that tries to accurately predict these interest rates have been developed. Two different class of models are one-factor- and multi-factor interest rate models. \cite[p.~507--624]{WFI}
+
+One-factor interest rate models are fitted using exactly one factor, the short rate, and is then used to simulate future interest rates. The short rate is the interest rate today. Examples of these kind of one-factor models are the Vasicek, Cox \& Ingersoll \& Ross, Ho \& Lee, and Hull \& White models \cite[p.~517]{WFI}. The downsides of these models are that the interest rates \newpage \noindent are influenced by more than just the previous interest rate. That's where multi-factor models come in. \cite[p.~507--624]{WFI}
+
+Multi-factor interest rate models uses two or more factors. In the two-factor case, one factor is typically a short-term interest rate and the other a long-term interest rate. These models allow for more information to be used, and in turn leads to better simulations. Some examples of two-factor models are the Brennan \& Schwartz, Fong \& Vasicek, Longstaff \& Schwartz, and Hull \& White models \cite[p.~584--587]{WFI}. These models still doesn't capture the whole market dynamic however. There has therefore been developed models that try to use the whole yield curve, or term structure of interest rates \cite{investopedia_term_structure}. These models capture how every interest rates with different maturities interacts and influences each other. The Heath, Jarrow \& Morton Forward Rate Model is one such model. \cite[p.~507--624]{WFI}
+
+\section{Heath, Jarrow \& Morton Forward Rate Model} \label{sec: HJM theory}
+
+\subsection{The HJM Framework}
+
+\noindent Heath, Jarrow \& Morton built a framework where we can model the whole forward rate curve \cite[p.~609]{WFI}. The framework describes the dynamics of the forward rate curve $\bigl\{ f \bigl( t, T \bigr), 0 \leq t \leq T \leq T^* \bigr\}$ for some ultimate maturity $T^*$. The forward rate $f \bigl( t, T \bigr)$ represents the instantaneous continuously compounded rate contracted at time $t$ for riskless borrowing or lending at time $T \geq t$. \cite[p.~150]{monte_carlo_method_financial_engineering}
+
+The risk-neutral forward curve is modeled through the $D$-dimensional SDE of the form \begin{equation} \label{eq:hjm model}
+    d f \bigl( t, T \bigr) = \mu \bigl( t, T \bigr) dt + \sum_{k=1}^D \sigma_k \bigl( t, T \bigr) dB_k,
+\end{equation} where the $dB_k$ are uncorrelated $1$-dimensional standard Brownian motions and the drift $\mu \bigl( t, T \bigr)$ is defined by \begin{equation} \label{eq:hjm drift}
+    \mu \bigl( t, T \bigr) = \sum_{k=1}^D \sigma_k \bigl( t, T \bigr) \int_t^T \sigma_k \bigl( t, s \bigr)ds.
+\end{equation} This is the so-called multi-factor HJM model with $D$ factors. \cite[p.~615]{WFI}
+
+\newpage
+
+\subsection{Discrete Approximation} \label{sec:discrete approx}
+
+\noindent Because of the difficulty of exact simulations of the multi-factor HJM model, we require a discrete approximation of the model. We fix a time grid $0 = t_0 < t_1 < \cdots < t_M$ for the time argument $t$, and for the maturity argument $T$, we fix a grid of maturities on the range $t_i \leq T \leq T^*$ for time $t_i$. Then the discretized forward rate $\hat{f} \bigl( t_i, t_j \bigr)$ for maturity $t_j$ as of time $t_i$, $j \geq i$ is modeled through \begin{equation} \label{eq:hjm model discretized}
+    d \hat{f} \bigl( t_i, t_j \bigr) = \hat{\mu} \bigl( t_i, t_j \bigr) \bigl[ t_i - t_{i - 1} \bigr] + \sum_{k=1}^D \hat{\sigma}_k \bigl( t_i, t_j \bigr) \sqrt{t_i - t_{i - 1}} Z_{i,k},
+\end{equation} for $j = i, \ldots, M$, where $Z_{1,k}, \ldots, Z_{m,k}$ are independent standard normal random variables and \begin{equation} \label{eq:hjm drift discretized}
+    \hat{\mu} \bigl( t_i, t_j \bigr) =  \sum_{k=1}^D \hat{\sigma}_k \bigl( t_i, t_j \bigr) \int_{t_i}^{t_j} \hat{\sigma}_k \bigl( t_i, s \bigr)ds.
+\end{equation} $\hat{\sigma}_k$ denote the discrete counterparts of the continuous-time coefficient in Equations \eqref{eq:hjm model} and \eqref{eq:hjm drift}. \cite[p.~155--156]{monte_carlo_method_financial_engineering}
+
+
+\subsection{The Musiela Parameterization} \label{sec:musiela}
+
+\noindent Often in practice the model for the volatility structure of the forward rate curve will be of the form \begin{equation*}
+    \sigma \bigl( t, T \bigr) = \overline{\sigma} \bigl( t, T - t\bigr),
+\end{equation*} meaning that we will model the volatility of the forward at each maturity, and not at each maturity date. We let $\uptau = T - t$, and thus \begin{equation*}
+    d \overline{f} \bigl( t, \uptau \bigr) = \overline{\mu} \bigl( t, \uptau \bigr) dt + \sum_{k=1}^D \overline{\sigma}_k \bigl( t, \uptau \bigr) dB_k,
+\end{equation*} where \begin{equation*}
+    \overline{\mu} \bigl( t, \uptau \bigr) = \sum_{k=1}^D \overline{\sigma}_k \bigl( t, \uptau \bigr) \int_{0}^{\uptau} \overline{\sigma}_k \bigl( t, s \bigr)ds + \frac{\partial}{\partial \uptau} \overline{f} \bigl( t, \uptau \bigr).
+\end{equation*} \cite[p.~614--615]{WFI}
+
+\newpage
+
+\subsection{Volatility Structure and Calibration}
+
+\noindent In \cite[p.~180--184]{monte_carlo_method_financial_engineering}, they explain how one can find the factors in a multi factor HJM model. They can be found by running PCA on either the covariance or correlation matrix. If the data has a lot of tenors, it can be hard to simulate because of the high dimension. By running PCA, we can reduce the matrix into 1 or more vectors which includes most of the variability. From the PCA we get the standard deviations of the principal components and the principal components. The factors in the HJM model are then the product of the principal components and their corresponding standard deviations. This process can be seen in \cite[p.~617--619]{WFI}.
+
+
+
+\section{Simulation of Interest Rate}
+
+\noindent To simulate future interest rates, one can use a method called Monte Carlo Simulation. This is a way to model the probability of different outcomes in a process that cannot easily be predicted due to the intervention of random variables \cite{investopedia_monte_carlo_simulation}. These simulations can then be helpful when explaining the impact of risk and uncertainty in prediction models. They can however take a long time to generate.
+
+\section{Model Evaluation}
+
+\subsection{Evaluating Model Assumptions}
+
+\noindent When examining the assumption of homoscedastic errors, a tool we can use is the residual vs. fits plot \cite[p.~155]{regression}. The homoscedasic errors assumption means that we assume that the variance is the same across all values, i.e. variance does not change from one point to another \cite[p.~87]{regression}. A residual vs. fits plot shows the estimated responses on the x axis and the residuals on the y axis. When examining the assumption of normality, a tool we can use is the Q-Q plot \cite[p.~156]{regression}. A Q-Q plot shows the theoretical quantiles of the normal distribution on the x axis and the quantiles of the data on the y axis.
+
+\subsection{Evaluating Model Predictions}
+
+\noindent Cross-Validation is a method for evaluation the predictive performance of a model. It is used to compare different models and their ability to predict on unseen data. When performing cross-validation, we divide the data into testing and training data, and then we train a new model on the testing data. We evaluate the prediction made from this new model with the training data to get a measure of how good our model is. \cite[p.~1--2]{liu2024leavegroupoutcrossvalidationlatentgaussian}
+
+\newpage
+
+\subsubsection{Leave-one-out Cross-Validation}
+
+\noindent In Leave-one-out Cross-Validation we let $y_i$ be our $i$th testing point and $\boldsymbol{y}_{-i}$ is our training set. $\boldsymbol{y}_{-i}$ is the whole dataset without the $i$th testing point. When using time series data, LOOCV would in practice test how good a model is at interpolation. LOOCV also assumes that all the observations are independent and identically distributed (I.I.D), which would be a limitation. \cite[p.~3]{liu2024leavegroupoutcrossvalidationlatentgaussian}
+
+
+
+\subsubsection{Leave-group-out Cross-Validation}
+
+\noindent In Leave-group-out Cross-Validation we let $y_i$ be our $i$th testing point and $\boldsymbol{y}_{-I_i}$ is our training set. $\boldsymbol{y}_{-I_i}$ is all the data except for the data indexed by $I_i$. The group for each testing points is decided beforehand. LGOCV can handle non-I.I.D data, and it also more naturally handle prediction tasks because relevant information is used in testing. \cite[p.~3]{liu2024leavegroupoutcrossvalidationlatentgaussian}
+
+
+
+\section{Fitting lines to data}
+
+\subsection{Nelson Siegel}
+
+\noindent The Nelson Siegel Yield Curve model is a well known model for fitting a yield curve, which will allow of extrapolation and interpolation of the yields of unknown maturities. The Nelson-Siegel yield curve is described by \begin{equation*}
+    y_t \bigl( \uptau \bigr) = \beta_{1t} + \beta_{2t} \Biggl( \frac{1 - \exp \bigl\{ - \lambda_t \uptau \bigr\} } {\lambda_t \uptau} \Biggr) + \beta_{3t} \Biggl( \frac{1 - \exp \bigl\{ - \lambda_t \uptau \bigr\} } {\lambda_t \uptau} - \exp \bigl\{ - \lambda_t \uptau \bigr\} \Biggr).
+\end{equation*} This function describes the yield curve beginning at zero maturity, $\uptau = 0$, and approaches zero at infinite maturity, $\uptau = \infty$. \cite{science_direct_nelson_siegel}
+
+\subsection{Polynomial Regression}
+
+\noindent A polynomial is a function $f$ whose value at $x$ is \begin{equation*}
+    f(x) = a_n x^n + a_{n-1} x^{n-1} + \ldots + a_2 x^2 + a_1 x + a_0,
+\end{equation*} where $a_n, a_{n-1}, \ldots, a_2, a_1, \text{ and } a_0$, called the coefficients of the polynomial, are constants and, if $n > 0$, then $a_n \neq 0$. The number $n$, the degree of the highest power of $x$ in the polynomial, is called the degree of the polynomial. \cite[p.~39]{calc}
+
+A cubic polynomial is a polynomial of 3rd degree. These polynomials allows of two changes in direction of a curve. A cubic polynomial is described by \begin{equation*}
+    f \bigl( x \bigr) = a x^3 + b x^2 + c x + d,
+\end{equation*} where $a, b, c,d$ are constants.
+
+Polynomial regression is an approach for fitting non-linear relationships between predictors and response variables \cite[p.~290]{intro_stat_learning}. In such a process, we estimate the coefficients in a polynomial.
+
+\subsection{Spline Regression}
+
+\noindent A spline is a function defined piecewise by polynomials. A knot is where the coefficients in these polynomials change. The number of knots is denotes as $K$. A cubic spline is a spline where these piecewise polynomial have degree $3$, and degree of freedom $\text{df} = K + 3 + 1$. The $3$ is because the polynomial has degree $3$, and the $1$ is added because we include the intercept in the polynomials. A natural spline has boundary constraints. It requires that the function is linear at the boundaries. The knots are normally chosen automatically by software at the $25$th, $50$th, and $75$th percentiles. Spline regression is the approach of fitting these splines to data. \cite[p.~295--300]{intro_stat_learning}
+
+Spline regression is often preferred over polynomial regression because it produces more stable estimates. Polynomial regression produces undesirable results at the boundaries. Spline regression are more flexible, so they can be fitted well at regions where the data changes rapidly. \cite[p.~300]{intro_stat_learning}
